@@ -12,7 +12,7 @@ class GaussianBlur(object):
         self.kernel = self._generate_gaussian_kernel()
 
     def _split_channels(self, input_img: numpy.ndarray):
-        total_channels = len(input_img[:, :, 0])
+        total_channels = len(input_img[0, 0, :])
         channels = []
         for ch in range(total_channels):
             channels.append(input_img[:, :, ch])
@@ -55,7 +55,7 @@ class GaussianBlur(object):
     def blur_channel(self, input_channel: numpy.ndarray):
 
         height, width = input_channel.shape 
-        output_img = numpy.zeros(a=input_channel)
+        output_img = numpy.zeros_like(a=input_channel)
         radius = self.kernel_size // 2
 
         for x in range(radius, height - radius):
