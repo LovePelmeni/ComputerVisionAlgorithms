@@ -8,7 +8,7 @@ class SobelOperator(object):
     """
     def __init__(self):
         self.gx = numpy.array([[1, 0, -1],[2, 0, -2],[1, 0, -1]]).astype(numpy.float32)
-        self.gy = numpy.array([[1, 2, 1],[0, 0, 0],[-1, -2, -1]]).atype(numpy.float32)
+        self.gy = numpy.array([[1, 2, 1],[0, 0, 0],[-1, -2, -1]]).astype(numpy.float32)
     
     def convert_to_grayscale(self, input_img: numpy.ndarray):
         gamma = 1.400
@@ -17,10 +17,15 @@ class SobelOperator(object):
         g_const * (input_img[:, :, 1] ** gamma) + b_const * (input_img[:, :, 2] ** gamma)
         return grayscale_image
 
-    def get_directions_map(self, input_img: numpy.ndarray):
-        pass
-
-    def find_edges(self, gray_img: numpy.ndarray):
+    def round_direction_angle(self, angle: float):
+        abs_angle = abs(angle)
+        if abs_angle <= 22.5: return 0
+        if abs_angle <= 67.5: return 45
+        if abs_angle <= 112.5: return 90
+        if abs_angle <= 157.5: return 135
+        return 0
+        
+    def find_edges(self, input_img: numpy.ndarray):
         """
         Note:
             input img should be  
@@ -33,17 +38,20 @@ class SobelOperator(object):
         -----------
         gray_img - grayscale image
         """
-        if gray_img.shape[2] == 3:
-            gray_img = self.convert_to_grayscale(input_img=gray_img)
+        if len(input_img.shape) == 3:
+            input_img = self.convert_to_grayscale(input_img=input_img)
 
-        height, width = gray_img.shape
-        output = numpy.zeros_like(gray_img)
+        height, width = input_img.shape
+        grad_img = numpy.zeros_like(input_img)
+        grad_direction_map = numpy.zeros_like(input_img)
 
         for x in range(1, height - 2):
             for y in range(1, width - 2):
-                gx = numpy.sum(numpy.multiply(self.gx, gray_img[x:x+3, y:y+3]))
-                gy = numpy.sum(numpy.multiply(self.gy, gray_img[x:x+3, y:y+3]))
+                
+                gx = numpy.sum(numpy.multiply(self.gx, input_img[x:x+3, y:y+3]))
+                gy = numpy.sum(numpy.multiply(self.gy, input_img[x:x+3, y:y+3]))
 
-                output[x+1, y+1] = numpy.sqrt((gx ** 2) + (gy ** 2))
-        return output 
-
+                grad_img[x+1, y+1] = numpy.sqrt((gx ** 2) + (gy ** 2))
+                grad_direction_map[x+1, y+1] = self.round_direction_angle(numpy.arctan([gy / gx])[0])
+                
+        return grad_img, grad_direction_map
