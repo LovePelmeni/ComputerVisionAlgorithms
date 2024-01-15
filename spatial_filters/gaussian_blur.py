@@ -1,15 +1,12 @@
 import numpy 
 class GaussianBlur(object):
 
-    def __init__(self, sigmaX: float, sigmaY: float, kernel_size: int):
-
-        if kernel_size % 2 == 0:
-            raise ValueError(msg='kernel size should be odd, not even')
+    def __init__(self, sigmaX: float, kernel_size: int, sigmaY: float = None):
 
         self.sigmaX = sigmaX 
-        self.sigmaY = sigmaY 
+        self.sigmaY = sigmaY if sigmaY else sigmaX
         self.kernel_size = kernel_size
-        self.kernel = self._generate_gaussian_kernel()
+        self.kernel = self._generate_gaussian_kernel(kernel_size=kernel_size)
 
     def _split_channels(self, input_img: numpy.ndarray):
         total_channels = len(input_img[0, 0, :])
@@ -18,10 +15,13 @@ class GaussianBlur(object):
             channels.append(input_img[:, :, ch])
         return channels
     
-    def _generate_gaussian_kernel(self):
+    def _generate_gaussian_kernel(self, kernel_size: int):
         """
         Function generates gaussian kernel
         """
+        if kernel_size % 2 == 0:
+            raise ValueError(msg='kernel size should be odd, not even')
+
         output_kernel = numpy.zeros(shape=(self.kernel_size, self.kernel_size))
         radius = (self.kernel_size // 2)
 
@@ -50,7 +50,7 @@ class GaussianBlur(object):
         x_part = numpy.power((posX - X0), 2) / (2 * numpy.power(self.sigmaX, 2))
         y_part = numpy.power((posY - Y0), 2) / (2 * numpy.power(self.sigmaY, 2))
         exp_power = - (y_part + x_part)
-        return (1 / 2 * numpy.pi * numpy.power(self.sigmaX, 2)) * numpy.exp(exp_power)
+        return (1 / 2 * numpy.pi * self.sigmaX * self.sigmaY) * numpy.exp(exp_power)
 
     def blur_channel(self, input_channel: numpy.ndarray):
 
