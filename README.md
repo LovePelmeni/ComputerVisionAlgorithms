@@ -22,3 +22,6 @@ Implementations of popular Computer Vision algorithms, edge detectors, spatial f
 
 - SSIM
 - PSNR
+
+#Image enhancement augmentations. 
+- Normalization
