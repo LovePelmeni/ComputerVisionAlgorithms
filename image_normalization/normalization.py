@@ -11,31 +11,10 @@ class ImageNormalization(object):
     Image normalization technique.
     Not channelwise
     """
-    def __init__(self, gamma: float, beta: float, momentum: float):
-        self.momentum = momentum 
-        self.gamma = gamma 
-        self.beta = beta 
-        self.current_mode: typing.Literal['train', 'valid'] = 'train'
-        self.vars = []
-        self.means = []
-
     def _calculate_new_variance(self, variance: float) -> float:
-        if not self.vars:
-            self.vars.append(variance)
-            return variance
-        else:
-            new_variance = (1 - self.momentum) * self.vars[-1] + self.momentum * variance
-            self.vars.append(new_variance)
-            return new_variance
-
+       return variance
     def _calculate_new_mean(self, mean: float) -> float:
-        if not self.means:
-            self.means.append(mean)
-            return mean
-        else:
-            new_mean = (1 - self.momentum) * self.means[-1] + self.momentum * mean
-            self.means.append(new_mean)
-            return new_mean
+       return mean
 
     def normalize(self, input_image: numpy.ndarray):
         
